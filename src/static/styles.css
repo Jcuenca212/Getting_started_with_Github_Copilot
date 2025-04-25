@@ -117,6 +117,20 @@ section h3 {
   font-size: 14px;
 }
 
+/* Style for delete icon */
+.delete-participant {
+  background: none;
+  border: none;
+  color: red;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.delete-participant:hover {
+  color: darkred;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
