@@ -26,8 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
           <p><strong>Participants:</strong></p>
-          <ul>
-            ${details.participants.map(participant => `<li>${participant}</li>`).join("")}
+          <ul style="list-style-type: none; padding: 0;">
+            ${details.participants.map(participant => `
+              <li>
+                ${participant}
+                <button class="delete-participant" data-activity="${name}" data-participant="${participant}">❌</button>
+              </li>
+            `).join("")}
           </ul>
         `;
 
@@ -62,10 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const result = await response.json();
 
+      // Update activities list dynamically after successful registration
       if (response.ok) {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Refresh the activities list
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
@@ -82,6 +89,35 @@ document.addEventListener("DOMContentLoaded", () => {
       messageDiv.className = "error";
       messageDiv.classList.remove("hidden");
       console.error("Error signing up:", error);
+    }
+  });
+
+  // Add event listener for delete buttons
+  document.addEventListener("click", async (event) => {
+    if (event.target.classList.contains("delete-participant")) {
+      const button = event.target;
+      const activity = button.dataset.activity;
+      const participant = button.dataset.participant;
+
+      try {
+        const response = await fetch(
+          `/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(participant)}`,
+          {
+            method: "POST",
+          }
+        );
+
+        if (response.ok) {
+          alert(`${participant} has been unregistered from ${activity}.`);
+          fetchActivities(); // Refresh the activities list
+        } else {
+          const result = await response.json();
+          alert(result.detail || "An error occurred.");
+        }
+      } catch (error) {
+        console.error("Error unregistering participant:", error);
+        alert("Failed to unregister participant. Please try again.");
+      }
     }
   });
 
